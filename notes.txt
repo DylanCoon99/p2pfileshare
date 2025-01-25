@@ -1,0 +1,28 @@
+p2p networking
+
+2 types (structured vs unstructured)
+
+	- structured: peers organize into a specific structure that allows
+	  each to oversee a specific portion of the network.
+	- unstructured: no set structure. any peer can join the network by
+	  duplicating the links already established. (much easier to implement).
+
+
+How File Sharing Works
+
+	- Establish a network connection via TCP
+	- Handshake mechanism so peers can identify eachother
+	- File Chunking: divide files into chunks for easier transmission.
+	Assign a unique identifier to each chunk.
+	- Data Transfer: Basic Request-Response system
+		- Request: Peer A requwests chunk X from Peer B.
+		- Response: Peer B sends chunk X to Peer A.
+		- Use a checksum for validation that the file is not
+		  uncorrupted.
+	- Peer Discovery: Hardcode a list of peers, or have a small
+	  centralized server with a list of peers?
+
+	- Overlay? Used as an application layer for indexing and peer
+	  discovery              
+	
+	- File Assembly
