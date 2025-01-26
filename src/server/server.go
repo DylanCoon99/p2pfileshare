@@ -1,0 +1,77 @@
+package server
+
+import (
+	"net"
+	"log"
+)
+
+
+
+type Peer struct {
+	// going to have an IP address with port
+	// whether the node is active or not
+
+	IP net.IPAddr
+	Active bool
+}
+
+
+
+func StartServer(port string) {
+
+
+
+	// this will be a server that exists purely for peer discovery.
+
+	// a node will register with the server
+
+	// the node can query the server for a list of peers
+
+	// the server sends the list of peers
+
+	// the server can periodically ping nodes to ensure they are still alive
+
+	// need to implement REGISTER and GET_PEERS requests over TCP
+
+
+	/*
+		REGISTER -> sent by a node to inform the server of its existence
+
+		Response -> Ok or error
+
+
+		GET_PEERS -> sent by a node to request the list of active peers
+
+		Response -> List of peers 
+
+
+		UNREGISTER -> sent by a node when it leaves the network
+
+		Response -> Ok
+
+
+	*/
+
+	//peers := make([]Peer, 0)
+
+
+	// instantiate tcp server here
+	ln, err := net.Listen("tcp", ":" + port)  // returns (Listener, error)
+
+
+	if err != nil {
+		log.Fatal(err) // prints the error and exits the program
+	}
+	log.Println("Server: I am listening on port 8080.")
+
+	for {
+		conn, err := ln.Accept()
+		if err != nil {
+			log.Println(err) // prints the error to standard error
+		}
+		// handle the connnection
+		go HandleConnection(conn)
+	}
+
+
+}
