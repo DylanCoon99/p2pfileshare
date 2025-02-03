@@ -3,7 +3,39 @@ package server
 import (
 	"net"
 	"log"
+	"time"
 )
+
+
+const MaxNumPeers = 10
+
+
+type ServerState struct {
+	MaxPeers int
+	CurNumPeers int
+	Peers *[]Peer
+}
+
+
+type RequestType int
+
+const (
+	REGISTER RequestType = iota
+	UNREGISTER
+	GET_PEERS
+	PING
+	DISCONNECT
+)
+
+
+
+type Request struct {
+	// type of request sent to the server
+	Type RequestType
+	Body []byte
+	Peer *Peer
+	Conn net.Conn
+}
 
 
 
@@ -11,8 +43,9 @@ type Peer struct {
 	// going to have an IP address with port
 	// whether the node is active or not
 
-	IP net.IPAddr
-	Active bool
+	IP net.IP                    `json:"ip"`
+	Active bool                  `json:"active"`
+	LastServerContact time.Time  `json:"lastservercontact"`
 }
 
 
@@ -52,7 +85,16 @@ func StartServer(port string) {
 
 	*/
 
-	//peers := make([]Peer, 0)
+
+	// instantiate a serverstate
+
+	peers := make([]Peer, MaxNumPeers)
+
+	serverCfg := ServerState{
+		MaxPeers: MaxNumPeers,
+		CurNumPeers: 0,
+		Peers: &peers,
+	}
 
 
 	// instantiate tcp server here
@@ -70,7 +112,7 @@ func StartServer(port string) {
 			log.Println(err) // prints the error to standard error
 		}
 		// handle the connnection
-		go HandleConnection(conn)
+		go serverCfg.HandleConnection(conn)
 	}
 
 

@@ -1,5 +1,7 @@
 package main
 
+// This is an entry point for a peer
+
 import (
 	//"time"
 	"log"
@@ -22,6 +24,11 @@ func main() {
 		log.Fatal("I Failed to connect to the server")
 	}
 
+	// Register the peer with the server
 	peer.Register(conn)
+
+
+	// Get all peers from the server
+	// peer.GetPeers(conn)
 
 }

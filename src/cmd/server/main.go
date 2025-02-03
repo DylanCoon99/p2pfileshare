@@ -1,5 +1,7 @@
 package main
 
+// This is an entry point for the server
+
 import (
 	"github.com/DylanCoon99/p2pfileshare/src/server"
 )
