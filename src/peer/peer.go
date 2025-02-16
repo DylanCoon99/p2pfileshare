@@ -5,7 +5,8 @@ import (
 	"log"
 	"fmt"
 	"time"
-	"encoding/json"
+	"encoding/binary"
+	"bytes"
 )
 
 
@@ -57,7 +58,7 @@ func Register(conn net.Conn) error {
 	}
 	// Read the response from the server
 
-	buffer := make([]byte, 1024)
+	buffer := make([]byte, 0)
 
 	n, err := conn.Read(buffer)
   	if err != nil {
@@ -78,34 +79,43 @@ func GetPeers(conn net.Conn) (*[]Peer, error) {
 	// Write Get Peers to the connection
 
 
-		// Write register to the connection
-	data := []byte("GET_PEERS")
-	_, err := conn.Write(data)
+	// Write GET_PEERS to the connection
+	req := []byte("GET_PEERS")
+	_, err := conn.Write(req)
 	if err != nil {
 		log.Println("Error: ", err)
 		return nil, err
 	}
+
+
+
+
 	// Read the response from the server
-
-	buffer := make([]byte, 1024)
-
-	n, err := conn.Read(buffer)
+	buffer := make([]byte, 0)
+	_, err = conn.Read(buffer)
   	if err != nil {
     	fmt.Println("Error:", err)
     	return nil, err
     }
 
-    // Process and use the data (here, we'll just print it)
-    fmt.Printf("Received: %s\n", buffer[:n])
+    var peers []Peer
+    reader := bytes.NewReader(buffer)
+
+    for i := 0; i < len(buffer)/4; i++ {
+    	var peer Peer
+    	err := binary.Read(reader, binary.BigEndian, &peer)
+    	if err != nil {
+    		log.Println("Error decoding: ", err)
+    		return nil, err
+    	}
+    	peers = append(peers, peer)
+
+    }
 
 
-    // decode the bytes into a struct
-    peers := make([]Peer, 0)
-
-    decoder := json.Decoder()
 
 
-	return peers, nil
+	return &peers, nil
 
 
 }

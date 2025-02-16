@@ -1,39 +1,61 @@
 package server
 
 import (
-	//"encoding/json"
-	//"log"
+	"encoding/binary"
+	"bytes"
+	"log"
 )
 
 func (serverCfg ServerState) Register(req *Request) {
+	
+	// CORRECT THIS TO NOT ADD A PEER TWICE
+
+
 	// add this peer to the peer list and set it's status to active
 
 	// write a response to the connection
 
 	conn := req.Conn
 	conn.Write([]byte("This is the server speaking. You sent a register request"))
-	peers := serverCfg.Peers
+	//peers := serverCfg.Peers
 
-	//i := serverCfg.CurNumPeers
 
-	//*peers[i] = req.Peer
-	//serverCfg.CurNumPeers = i + 1
+	//*peers = append(*peers, *req.Peer)
+	*serverCfg.Peers = append(*serverCfg.Peers, *req.Peer)
 
-	*peers = append(*peers, *req.Peer)
+	// print the list of peers for testing purposes
+	//log.Println(serverCfg.Peers)
 
-	/*
-	data, err := json.Marshal(req.Peer)
-	if err != nil {
-		log.Println("Error:", err)
-		return
-	}
-	conn.Write([]byte(data))
-	*/
 }
 
 
 func (serverCfg ServerState) GetPeers(req *Request) {
-	// return a list of active peers
+	// write a list of active peers to a response
+
+	//log.Println(serverCfg.Peers)
+
+
+	conn := req.Conn
+	buf := new(bytes.Buffer)
+
+	peers := serverCfg.Peers
+
+
+	for _, peer := range *peers {
+
+		if peer.Active == true {
+			err := binary.Write(buf, binary.BigEndian, peer)
+			if err != nil {
+				log.Println("Error encoding: ", err) // some values are not fixed size in server.Peer
+				return
+			}
+		}
+	}
+
+
+	log.Printf("This is the GetPeers command: %v", buf.Bytes())
+
+	conn.Write(buf.Bytes())
 
 
 }
@@ -41,6 +63,7 @@ func (serverCfg ServerState) GetPeers(req *Request) {
 
 func (serverCfg ServerState) Unregister(req *Request) {
 	// Set this peers status to unactive if the node is present in the peer list
+
 
 
 }

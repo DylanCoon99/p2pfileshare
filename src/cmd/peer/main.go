@@ -24,11 +24,19 @@ func main() {
 		log.Fatal("I Failed to connect to the server")
 	}
 
+
 	// Register the peer with the server
-	peer.Register(conn)
+	//peer.Register(conn)
 
 
+	
 	// Get all peers from the server
-	// peer.GetPeers(conn)
+	peers,err := peer.GetPeers(conn)
 
+	if err != nil {
+		log.Println("Error getting peers:", err)
+	}
+	log.Printf("I am a peer and I received: %s\n", peers)
+	
+	conn.Close()
 }
