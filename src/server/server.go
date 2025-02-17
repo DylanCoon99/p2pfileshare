@@ -67,23 +67,6 @@ func StartServer(port string) {
 	// need to implement REGISTER and GET_PEERS requests over TCP
 
 
-	/*
-		REGISTER -> sent by a node to inform the server of its existence
-
-		Response -> Ok or error
-
-
-		GET_PEERS -> sent by a node to request the list of active peers
-
-		Response -> List of peers 
-
-
-		UNREGISTER -> sent by a node when it leaves the network
-
-		Response -> Ok
-
-
-	*/
 
 
 	// instantiate a serverstate

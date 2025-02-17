@@ -1,8 +1,8 @@
 package server
 
 import (
-	"encoding/binary"
-	"bytes"
+	"encoding/json"
+	//"bytes"
 	"log"
 )
 
@@ -16,15 +16,16 @@ func (serverCfg ServerState) Register(req *Request) {
 	// write a response to the connection
 
 	conn := req.Conn
-	conn.Write([]byte("This is the server speaking. You sent a register request"))
 	//peers := serverCfg.Peers
 
 
 	//*peers = append(*peers, *req.Peer)
 	*serverCfg.Peers = append(*serverCfg.Peers, *req.Peer)
 
-	// print the list of peers for testing purposes
-	//log.Println(serverCfg.Peers)
+	//log.Printf("Here is the updated list of peers: %v", serverCfg.Peers)
+
+
+	conn.Write([]byte("You are successfully registered.\n"))
 
 }
 
@@ -36,26 +37,20 @@ func (serverCfg ServerState) GetPeers(req *Request) {
 
 
 	conn := req.Conn
-	buf := new(bytes.Buffer)
 
 	peers := serverCfg.Peers
 
 
-	for _, peer := range *peers {
 
-		if peer.Active == true {
-			err := binary.Write(buf, binary.BigEndian, peer)
-			if err != nil {
-				log.Println("Error encoding: ", err) // some values are not fixed size in server.Peer
-				return
-			}
-		}
+	// goal: encode array of Peer struct to json encoding of bytes
+
+	jsonPeers, err := json.Marshal(peers)
+	if err != nil {
+		log.Printf("Error marshalling JSON Peers: %v", err)
 	}
 
 
-	log.Printf("This is the GetPeers command: %v", buf.Bytes())
-
-	conn.Write(buf.Bytes())
+	conn.Write([]byte(string(jsonPeers) + "\n"))
 
 
 }

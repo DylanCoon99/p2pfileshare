@@ -1,12 +1,15 @@
 package peer
 
 import (
+	//"io"
 	"net"
 	"log"
 	"fmt"
 	"time"
-	"encoding/binary"
-	"bytes"
+	//"bytes"
+	"encoding/json"
+	"bufio"
+	"strings"
 )
 
 
@@ -50,7 +53,7 @@ func ConnectToServer(port string) net.Conn {
 func Register(conn net.Conn) error {
 
 	// Write register to the connection
-	data := []byte("REGISTER")
+	data := []byte("REGISTER\n")
 	_, err := conn.Write(data)
 	if err != nil {
 		log.Println("Error: ", err)
@@ -58,16 +61,14 @@ func Register(conn net.Conn) error {
 	}
 	// Read the response from the server
 
-	buffer := make([]byte, 0)
+	reader := bufio.NewReader(conn)
+	response, err := reader.ReadString('\n')
+	if err != nil {
+		log.Println("Error reading response: ", err)
+		return err
+	}
 
-	n, err := conn.Read(buffer)
-  	if err != nil {
-    	fmt.Println("Error:", err)
-    	return err
-    }
-
-    // Process and use the data (here, we'll just print it)
-    fmt.Printf("Received: %s\n", buffer[:n])
+	fmt.Printf("Received %s\n", response)
 
 	return nil
 
@@ -80,7 +81,7 @@ func GetPeers(conn net.Conn) (*[]Peer, error) {
 
 
 	// Write GET_PEERS to the connection
-	req := []byte("GET_PEERS")
+	req := []byte("GET_PEERS\n")
 	_, err := conn.Write(req)
 	if err != nil {
 		log.Println("Error: ", err)
@@ -88,32 +89,25 @@ func GetPeers(conn net.Conn) (*[]Peer, error) {
 	}
 
 
-
-
 	// Read the response from the server
-	buffer := make([]byte, 0)
-	_, err = conn.Read(buffer)
-  	if err != nil {
-    	fmt.Println("Error:", err)
-    	return nil, err
-    }
+	reader := bufio.NewReader(conn)
+	response, err := reader.ReadString('\n')
+	response = strings.TrimSpace(response)
+	if err != nil {
+		log.Println("Error reading response: ", err)
+		return nil, err
+	}
+
+	//log.Printf("Here is the list of peers: %v", response)
 
     var peers []Peer
-    reader := bytes.NewReader(buffer)
 
-    for i := 0; i < len(buffer)/4; i++ {
-    	var peer Peer
-    	err := binary.Read(reader, binary.BigEndian, &peer)
-    	if err != nil {
-    		log.Println("Error decoding: ", err)
-    		return nil, err
-    	}
-    	peers = append(peers, peer)
+    err = json.Unmarshal([]byte(response), &peers)
 
+
+    if err != nil {
+    	log.Printf("Error decoding peers: %v", err)
     }
-
-
-
 
 	return &peers, nil
 

@@ -26,3 +26,64 @@ How File Sharing Works
 	  discovery              
 	
 	- File Assembly
+
+
+
+Notes on File Sharing
+
+(1) File Storage:
+	- Chunk the file: When a peer (seeder) wants to share a file, it is divided into smaller,
+	fixed-size chunks. This allows different parts of the file to be shared from different 
+	sources simultaneously.
+	- Metadata Creation: Seeder generates metadata for the file which includes:
+		- File name, size, overall hash (?)
+		- Number of chunks and the hash/checksum for each chunk
+		- List of nodes (initial seeders) that have the file available
+	- Announcing Availability: The peer advertises that is has the file (or chunks) by updating a shared directory, DHT, or through a central server that maintains a list of available files and the peers
+	that hold them.
+
+(2) File Retrieval
+	- Peer Discovery & Metadata Exchange: A peer interested in downloading a file (leecher) first retrieves the 
+	metadata from DHT. This metadata tells the requesting node which chunks are available and from which peers.
+	- Requesting Chunks: The downloader sends requests for specific chunks to the peers that are known to have them. It's common to request different chunks from different peers to maximize speed and efficiency.
+	- Integrity Checks: As each chunk arrives, the downloader verifies its integrity using checksums or hashes provided in the metadata.
+	- Reassembly: Once chunks have been received and verified, the peer reassembles them into the original file. 
+
+(3) File Sending
+	- Listening for Requests: Peers that shared files listen for incoming connections and requests from other peers. When a request for a chunk arrives, the node locates that the chunk in its local storage.
+	- Data Transfer: The requested chunk is sent directly to the requestor over the established connection.
+	- Managing Multiple Requests: To optimize performance, a node can handle multiple simultaneous requests,
+	sending different chunks to different peers at the same time.
+
+
+
+
+File Chunking, Reassembly, Verfication
+
+(1) File Chunking
+	- The file is broken into fixed-size chunks (maybe about 1MB; not sure)
+	- Each chunk is assigned a unique identifier, often based on a cryptographic hash (SHA-256?)
+	- The hashes of all chunks are stored in a metadata file to verify integrity.
+
+(2) Distributing the Chunks Across Peers
+	- When a seeder has the full file, it announces its availability to the network.
+	- Leechers download chunks from multiple sources. (Not sequentially; chunks are random)
+
+(3) Reassembling the file
+	- The metadata (like manifest file) includes a list of chunk hashes and their correct sequences 
+	in the original file.
+	- Each chunk is stored in a temporary buffer with its assigned index.
+	- Once all chunks are downloaded, they are sorted based on their index and concatenated in order.
+
+(4) Verifying Chunks for Integrity
+	- After downloading a chunk, the leecher computes its hash and compares it to the hash provided in
+	the metadata.
+	- If the hashes matches, the chunk is valid.
+	- If it does not match, the chunk is discarded and redownloaded.
+
+(5) Redundancy and Availability
+	- To improve availability, peers exchange information about which chunks they already have.
+	- Peers priortize downloading rare chunks first to ensure all parts of the file remain available.
+
+
+

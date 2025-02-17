@@ -26,8 +26,17 @@ func main() {
 
 
 	// Register the peer with the server
-	//peer.Register(conn)
+	peer.Register(conn)
 
+
+	conn.Close()
+
+	
+	conn = peer.ConnectToServer(port)
+
+	if conn == nil {
+		log.Fatal("I Failed to connect to the server")
+	}
 
 	
 	// Get all peers from the server
@@ -36,7 +45,8 @@ func main() {
 	if err != nil {
 		log.Println("Error getting peers:", err)
 	}
-	log.Printf("I am a peer and I received: %s\n", peers)
+	log.Printf("I am a peer and I received: %v\n", peers)
 	
 	conn.Close()
+	
 }

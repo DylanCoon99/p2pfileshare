@@ -1,11 +1,12 @@
 package server
 
 import (
-	"io"
+	//"io"
 	"net"
 	"log"
 	"time"
-	"bytes"
+	//"bytes"
+	"bufio"
 )
 
 
@@ -29,21 +30,20 @@ func ParseRequest(buf []byte, conn net.Conn) *Request {
 	req.Conn = conn
 
 
-	log.Printf("This is the buf binary: %b", buf)
+	//log.Printf("This is the buf binary: %b", buf)
 
 
 	switch str := string(buf); str {
-	case "REGISTER":
+	case "REGISTER\n":
 		req.Type = REGISTER
-	case "UNREGISTER":
+	case "UNREGISTER\n":
 		req.Type = UNREGISTER
-	case "GET_PEERS":
+	case "GET_PEERS\n":
 		req.Type = GET_PEERS
-	case "DISCONNECT":
+	case "DISCONNECT\n":
 		req.Type = DISCONNECT
 	default:
 		// bad request
-		// For some fucked up reason the GET_PEERS req is getting routed to here.
 		log.Printf("This is a bad request dummy: %s", str)
 	}
 
@@ -83,35 +83,21 @@ func (serverCfg ServerState) HandleRequest(req *Request) {
 func (serverCfg ServerState) HandleConnection(conn net.Conn) {
 	defer conn.Close()
 
-	log.Println("Server: I am handling the connection now!")
+	log.Println("Server: Handling the connection now!")
 	// Read data from the connection
 	// Determine the type of request
-	buffer := bytes.Buffer{}
-	temp := make([]byte, 1024)
-	//t := ""
-
-
-	for {
-		// Read the data from the connection
-		n, err := conn.Read(temp)
-		if err != nil {
-			if err == io.EOF {
-				break // end of stream; ignore error
-			}
-			log.Println("Error: ", err)
-			return
-		}
-
-		buffer.Write(temp[:n]) // append the chuck to the buffer
-		
-
+	reader := bufio.NewReader(conn)
+	
+	requestLine, err := reader.ReadString('\n')
+	if err != nil {
+		log.Println("Error reading request:", err)
+		return
 	}
 
-	req := ParseRequest(buffer.Bytes(), conn)
+	req := ParseRequest([]byte(requestLine), conn)
 
 	serverCfg.HandleRequest(req)
 	
-	buffer.Truncate(0)
 
 	return
 }
