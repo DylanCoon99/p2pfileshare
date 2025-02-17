@@ -87,3 +87,98 @@ File Chunking, Reassembly, Verfication
 
 
 
+
+
+UI Stuff: This will be a cmd line application (implement with tview)
+
+(1) Basic File Listing UI: list cmd to show all files the peer has locally.
+
+===========================
+   Available Files
+===========================
+ #   File Name               Size       Status   
+------------------------------------------------
+ 1   ubuntu.iso              2.5 GB     Complete
+ 2   movie.mp4               700 MB     Seeding
+ 3   ebook.pdf               5 MB       Complete
+------------------------------------------------
+Total Files: 3
+Type 'info <#>' for more details.
+
+
+(2) File Details View: info <n> (View details of file n).
+
+===========================
+   File Details - ubuntu.iso
+===========================
+Size:            2.5 GB
+Status:          Seeding
+Downloaded:      100%
+Total Chunks:    256
+Chunks Available: [✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓] (All)
+Upload Speed:    1.2 MB/s
+Download Speed:  N/A
+Peers Sharing:   12
+------------------------------------------------
+Commands: 
+- 'peers <#>'  View who is sharing this file
+- 'stop <#>'   Stop seeding
+
+
+(3) Viewing Available Files Across the Network: search <filename>
+
+===========================
+   Search Results: "linux"
+===========================
+ #   File Name               Size       Peers   Status
+------------------------------------------------
+ 1   linux.iso               2.5 GB     12      Available
+ 2   linux-tutorial.pdf      4 MB       3       Available
+ 3   linux-kernel.zip        40 MB      5       Available
+------------------------------------------------
+Type 'download <#>' to start downloading.
+
+
+(4) Peer List for a File: peers n (Show who is sharing file n)
+
+===========================
+   Peers Sharing - ubuntu.iso
+===========================
+ #   Peer IP            Chunks  Speed    
+------------------------------------------------
+ 1   192.168.1.10       90%     2.3 MB/s
+ 2   192.168.1.15       100%    1.5 MB/s
+ 3   192.168.1.20       75%     1.2 MB/s
+ 4   192.168.1.25       30%     500 KB/s
+------------------------------------------------
+Type 'download <#> from <peer IP>' to fetch from a specific peer.
+
+
+(5) Download Progress UI: download n (start downloading file n)
+
+===========================
+   Downloading: ubuntu.iso
+===========================
+Progress:  [#####------]  45% (1.1 GB / 2.5 GB)
+Speed:     2.5 MB/s
+Peers:     5 sources
+ETA:       15 min
+------------------------------------------------
+Commands: 
+- 'pause'    Pause download
+- 'cancel'   Cancel download
+
+
+(6) Upload/Seeding Status: uploads (shows which files the peer is currently)
+
+===========================
+   Uploading / Seeding
+===========================
+ #   File Name             Speed   Peers  
+------------------------------------------------
+ 1   ubuntu.iso            1.2 MB/s  5
+ 2   movie.mp4             900 KB/s  3
+------------------------------------------------
+Type 'stop <#>' to stop seeding a file.
+
+
