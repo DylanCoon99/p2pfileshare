@@ -125,3 +125,30 @@ func DisconnectFromServer(conn net.Conn) {
 	conn.Close()
 	return
 }
+
+
+
+func (peer Peer) Listen(port string) {
+	// This is where this peer will listen for other peers attempting to connect
+
+
+	ln, err := net.Listen("tcp", ":" + port)  // returns (Listener, error)
+
+
+	if err != nil {
+		log.Fatal(err) // prints the error and exits the program
+	}
+	log.Println("Peer: I am listening for other peers.")
+
+	for {
+		conn, err := ln.Accept()
+		if err != nil {
+			log.Println(err) // prints the error to standard error
+		}
+		// handle the connnection
+		go peer.HandleConnection(conn)
+	}
+
+}
+
+
