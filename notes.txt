@@ -8,28 +8,8 @@ p2p networking
 	  duplicating the links already established. (much easier to implement).
 
 
-How File Sharing Works
 
-	- Establish a network connection via TCP
-	- Handshake mechanism so peers can identify eachother
-	- File Chunking: divide files into chunks for easier transmission.
-	Assign a unique identifier to each chunk.
-	- Data Transfer: Basic Request-Response system
-		- Request: Peer A requwests chunk X from Peer B.
-		- Response: Peer B sends chunk X to Peer A.
-		- Use a checksum for validation that the file is not
-		  uncorrupted.
-	- Peer Discovery: Hardcode a list of peers, or have a small
-	  centralized server with a list of peers?
-
-	- Overlay? Used as an application layer for indexing and peer
-	  discovery              
-	
-	- File Assembly
-
-
-
-Notes on File Sharing
+File Sharing
 
 (1) File Storage:
 	- Chunk the file: When a peer (seeder) wants to share a file, it is divided into smaller,
@@ -182,3 +162,12 @@ Commands:
 Type 'stop <#>' to stop seeding a file.
 
 
+
+
+Implementation Notes
+
+	- Need a mechanism for sharing DHT (Distributed Hash Table) information to other nodes
+	- Each node needs to periodically
+		- check if other nodes have joined the network
+		- send DHT info to new nodes on the network
+	- 
