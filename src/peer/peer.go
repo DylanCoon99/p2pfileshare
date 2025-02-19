@@ -14,11 +14,6 @@ import (
 
 
 
-type serverCfg struct {
-	conn net.Conn
-	port string
-}
-
 
 type Peer struct {
 	// going to have an IP address with port
@@ -27,6 +22,28 @@ type Peer struct {
 	IP net.IP                    `json:"ip"`
 	Active bool                  `json:"active"`
 	LastServerContact time.Time  `json:"lastservercontact"`
+}
+
+
+
+type RequestType int
+
+const (
+	CONNECT RequestType = iota
+	DHT_INFO
+	FILE_CHUNK
+	PING
+	DISCONNECT
+)
+
+
+
+type Request struct {
+	// type of request sent to the server
+	Type RequestType
+	Body []byte
+	Peer *Peer
+	Conn net.Conn
 }
 
 
@@ -150,5 +167,8 @@ func (peer Peer) Listen(port string) {
 	}
 
 }
+
+
+
 
 
