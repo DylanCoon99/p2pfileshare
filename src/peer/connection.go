@@ -42,6 +42,8 @@ func ParseRequest(buf []byte, conn net.Conn) *Request {
 	switch str := string(buf); str {
 	case "CONNECT\n":
 		req.Type = CONNECT
+	case "METADATA_SHARE\n":
+		req.Type = METADATA_SHARE
 	case "DHT_INFO\n":
 		req.Type = DHT_INFO
 	case "FILE_CHUNK\n":
@@ -68,6 +70,8 @@ func (peer Peer) HandleRequest(req *Request) {
 	switch t := req.Type; t {
 	case CONNECT:
 		peer.Connect(req)
+	case METADATA_SHARE:
+		peer.MetadataShare(req)
 	case DHT_INFO:
 		peer.DHTInfo(req)
 	case FILE_CHUNK:

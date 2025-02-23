@@ -170,4 +170,20 @@ Implementation Notes
 	- Each node needs to periodically
 		- check if other nodes have joined the network
 		- send DHT info to new nodes on the network
-	- 
+	- DHT (How tf it works): Each peer has a keyspace in the Hash Table
+		- Each key is a hash computed from the file metadata.
+	
+	File Sharing example: Peer 2 is seeking a file that Peer 1 and Peer 3 have.
+		- When file appears in a Peer's directory, its metadata is generated and saved to a
+		file that is shared with all other peers.
+		- A hash is generated with the file metadata (hash is applied to a standardized version of the metadata) and stored in the DHT. (Hashing function is same across peers.)
+		- When Peer 2 wants to download the file, it computes the hash for the file using metadata in the metadata file. The DHT is queried using this hash and returns the peers that have the file.
+			- Each peer in the result has a corresponding bitfield that represents chunk availability.
+		- Depending on availability, Peer 2 then requests chunks from relevant peers.
+		- Peer 2 receives all chunks and reassembles the file. 
+		- The file is then validated using a checksum. 
+
+	- 2/22/2025: Metadata generation for files, write metadata to file, share will all peers
+		- Metadata: File name, file size, chunk size, chunk indices
+		- 
+	- 2/23/2025: Figure out DHT sharing

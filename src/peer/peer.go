@@ -13,13 +13,13 @@ import (
 )
 
 
-
+const CHUNK_SIZE uint64 = 16384 //16KB Chunk size
 
 type Peer struct {
 	// going to have an IP address with port
 	// whether the node is active or not
 
-	IP net.IP                    `json:"ip"`
+	IP net.IP                    `json:"ip"` // probably going to have to modify this to include the port number
 	Active bool                  `json:"active"`
 	LastServerContact time.Time  `json:"lastservercontact"`
 }
@@ -30,6 +30,7 @@ type RequestType int
 
 const (
 	CONNECT RequestType = iota
+	METADATA_SHARE
 	DHT_INFO
 	FILE_CHUNK
 	PING
@@ -144,6 +145,28 @@ func DisconnectFromServer(conn net.Conn) {
 }
 
 
+func ConnectToPeer(peer *Peer) net.Conn {
+	//defer conn.Close()
+
+	// attempt to connect to the server via tcp
+
+	port := "80" // for now
+
+	conn, err := net.Dial("tcp", "localhost:" + port)
+	if err != nil {
+		log.Println(err)
+		return nil
+	}
+	log.Println("Peer: Successfully connected to peer!")
+
+
+	return conn
+
+
+}
+
+
+
 
 func (peer Peer) Listen(port string) {
 	// This is where this peer will listen for other peers attempting to connect
@@ -169,6 +192,10 @@ func (peer Peer) Listen(port string) {
 }
 
 
+
+
+// Each peer will have to have an array containing the files this peer has. Each file struct will
+// have some metadata and an array of chunks
 
 
 
