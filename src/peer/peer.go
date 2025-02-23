@@ -49,6 +49,40 @@ type Request struct {
 
 
 
+
+func InitPeer() {
+
+
+	// register with the server
+
+
+	// Generate Metadata
+
+
+	// Chunk each file, store file chunks indices in the index folder
+
+
+	// Get list of active peers
+
+
+	// Send metadata to all active peers
+
+
+	// Update DHT
+
+
+	// Send DHT to all active peers
+
+
+	// Listen for incoming peer requests
+
+
+}
+
+
+
+
+
 func ConnectToServer(port string) net.Conn {
 	//defer conn.Close()
 
@@ -191,11 +225,6 @@ func (peer Peer) Listen(port string) {
 
 }
 
-
-
-
-// Each peer will have to have an array containing the files this peer has. Each file struct will
-// have some metadata and an array of chunks
 
 
 

@@ -20,6 +20,8 @@ func main() {
 
 	conn = peer.ConnectToServer(port)
 
+	/*
+
 	if conn == nil {
 		log.Fatal("I Failed to connect to the server")
 	}
@@ -47,6 +49,8 @@ func main() {
 	}
 	log.Printf("I am a peer and I received: %v\n", peers)
 	
+	*/
+
 	conn.Close()
 	
 }

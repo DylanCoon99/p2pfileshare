@@ -95,6 +95,7 @@ func (peer Peer) HandleRequest(req *Request) {
 func (peer Peer) HandleConnection(conn net.Conn) {
 	defer conn.Close()
 
+	// To be implemented
 
 
 	return

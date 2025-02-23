@@ -1,4 +1,4 @@
-// contains utility functions (metadata, chunking, reassembly, validation)
+// contains utility functions (metadata generation, chunking, reassembly, validation)
 
 
 
