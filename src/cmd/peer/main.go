@@ -4,8 +4,8 @@ package main
 
 import (
 	//"time"
-	"log"
-	"net"
+	//"log"
+	//"net"
 	"github.com/DylanCoon99/p2pfileshare/src/peer"
 )
 
@@ -15,10 +15,10 @@ import (
 
 func main() {
 
-	const port = "8080"
-	var conn net.Conn
+	//const port = "8080"
+	//var conn net.Conn
 
-	conn = peer.ConnectToServer(port)
+	//conn = peer.ConnectToServer(port)
 
 	/*
 
@@ -51,6 +51,8 @@ func main() {
 	
 	*/
 
-	conn.Close()
+	peer.InitPeer()
+
+	//conn.Close()
 	
 }
