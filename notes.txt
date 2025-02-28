@@ -186,4 +186,4 @@ Implementation Notes
 	- 2/22/2025: Metadata generation for files, write metadata to file, share will all peers
 		- Metadata: File name, file size, chunk size, chunk indices
 		- 
-	- 2/23/2025: Figure out DHT sharing
+	- 2/23/2025: Figure out Metadata and DHT sharing

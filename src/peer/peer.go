@@ -19,7 +19,7 @@ type Peer struct {
 	// going to have an IP address with port
 	// whether the node is active or not
 
-	IP net.IP                    `json:"ip"` // probably going to have to modify this to include the port number
+	IP string                    `json:"ip"`  // "ip:port" in string format
 	Active bool                  `json:"active"`
 	LastServerContact time.Time  `json:"lastservercontact"`
 }
@@ -58,6 +58,11 @@ func InitPeer() {
 
 	// Generate Metadata
 
+	file1_path := "/mnt/c/Users/Dylan/My Documents/self_learning/p2p/src/cmd/peer/dir/file1_test.txt"
+
+	metadata_path := "/mnt/c/Users/Dylan/My Documents/self_learning/p2p/src/peer/metadata/metadata.json"
+
+	GenerateMetadata(file1_path, metadata_path)
 
 	// Chunk each file, store file chunks indices in the index folder
 
@@ -101,6 +106,9 @@ func ConnectToServer(port string) net.Conn {
 
 
 }
+
+
+
 
 func Register(conn net.Conn) error {
 
@@ -167,35 +175,53 @@ func GetPeers(conn net.Conn) (*[]Peer, error) {
 }
 
 
+
+func SendMetadata(conn net.Conn) (error) {
+
+	// this function will send metadata to another peer
+
+
+	// read metadata from the metadata.json
+
+
+	// encode the metadata to bytes
+
+
+	// send data over the conn
+
+
+	return nil
+}
+
+
+
+
+
 func Ping(conn net.Conn) {
 	// peers have to periodically ping the server to let them know they are still alive
 
 }
 
 
-func DisconnectFromServer(conn net.Conn) {
+func Disconnect(conn net.Conn) {
 	conn.Close()
 	return
 }
 
 
-func ConnectToPeer(peer *Peer) net.Conn {
-	//defer conn.Close()
+func ConnectToPeer(peer *Peer) (net.Conn, error) {
 
 	// attempt to connect to the server via tcp
 
-	port := "80" // for now
-
-	conn, err := net.Dial("tcp", "localhost:" + port)
+	conn, err := net.Dial("tcp", peer.IP)
 	if err != nil {
 		log.Println(err)
-		return nil
+		return nil, err
 	}
 	log.Println("Peer: Successfully connected to peer!")
 
 
-	return conn
-
+	return conn, nil
 
 }
 

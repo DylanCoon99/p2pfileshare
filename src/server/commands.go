@@ -21,6 +21,7 @@ func (serverCfg ServerState) Register(req *Request) {
 
 	//*peers = append(*peers, *req.Peer)
 	*serverCfg.Peers = append(*serverCfg.Peers, *req.Peer)
+	serverCfg.CurNumPeers += 1
 
 	//log.Printf("Here is the updated list of peers: %v", serverCfg.Peers)
 

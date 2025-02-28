@@ -11,7 +11,14 @@ import (
 
 
 
+/*
 
+I am thinking this is where the tview ui will be instantiated
+
+Notes: 
+
+
+*/
 
 func main() {
 

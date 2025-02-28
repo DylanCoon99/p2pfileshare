@@ -18,6 +18,8 @@ func (peer Peer) DHTInfo(req *Request) {
 
 func (peer Peer) MetadataShare(req *Request) {
 
+	// this handles a metadata share request (when another node is sharing metadata for it's files)
+	
 
 }
 

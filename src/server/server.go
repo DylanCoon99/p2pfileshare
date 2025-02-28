@@ -43,7 +43,7 @@ type Peer struct {
 	// going to have an IP address with port
 	// whether the node is active or not
 
-	IP net.IP                    `json:"ip"`
+	IP string                    `json:"ip"`  // "ip:port" in string format
 	Active bool                  `json:"active"`
 	LastServerContact time.Time  `json:"lastservercontact"`
 }

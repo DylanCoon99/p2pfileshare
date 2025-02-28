@@ -2,6 +2,7 @@ package server
 
 import (
 	//"io"
+	"fmt"
 	"net"
 	"log"
 	"time"
@@ -21,8 +22,8 @@ func ParseRequest(buf []byte, conn net.Conn) *Request {
 
 	localAddr := conn.LocalAddr().(*net.TCPAddr)
 
-	peer.IP = localAddr.IP
-	peer.Active = true
+	peer.IP                = fmt.Sprintf("%s:%d", localAddr.IP.String(), localAddr.Port)
+	peer.Active            = true
 	peer.LastServerContact = time.Now()
 
 	req.Body = buf
