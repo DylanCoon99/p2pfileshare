@@ -15,6 +15,8 @@ import (
 
 const CHUNK_SIZE uint64 = 16384 //16KB Chunk size
 
+
+
 type Peer struct {
 	// going to have an IP address with port
 	// whether the node is active or not
@@ -48,9 +50,27 @@ type Request struct {
 }
 
 
+type PeerCfg struct {
+	MetadataPath string
+	DirectoryPath string
+	// DHT map
+
+}
+
 
 
 func InitPeer() {
+
+	//peer cfg
+	metadata_path := "/mnt/c/Users/Dylan/My Documents/self_learning/p2p/src/peer/metadata/metadata.json"
+	dir_path := "/mnt/c/Users/Dylan/My Documents/self_learning/p2p/src/cmd/peer/dir/"
+
+
+	peerCfg := PeerCfg {
+		MetadataPath: metadata_path,
+		DirectoryPath: dir_path,
+		// add DHT here later
+	}
 
 
 	// register with the server
@@ -58,11 +78,7 @@ func InitPeer() {
 
 	// Generate Metadata
 
-	file1_path := "/mnt/c/Users/Dylan/My Documents/self_learning/p2p/src/cmd/peer/dir/file1_test.txt"
-
-	metadata_path := "/mnt/c/Users/Dylan/My Documents/self_learning/p2p/src/peer/metadata/metadata.json"
-
-	GenerateMetadata(file1_path, metadata_path)
+	peerCfg.GenerateMetadata()
 
 	// Chunk each file, store file chunks indices in the index folder
 
@@ -89,7 +105,6 @@ func InitPeer() {
 
 
 func ConnectToServer(port string) net.Conn {
-	//defer conn.Close()
 
 	// attempt to connect to the server via tcp
 
@@ -103,8 +118,6 @@ func ConnectToServer(port string) net.Conn {
 
 
 	return conn
-
-
 }
 
 
@@ -194,7 +207,22 @@ func SendMetadata(conn net.Conn) (error) {
 }
 
 
+func SendDHT(conn net.Conn) (error) {
 
+	// this function will send DHT data to another peer
+
+
+	// capture DHT in a variable
+
+
+	// encode the DHT to bytes
+
+
+	// send data over the conn
+
+
+	return nil
+}
 
 
 func Ping(conn net.Conn) {

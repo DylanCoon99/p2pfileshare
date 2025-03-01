@@ -5,7 +5,9 @@ package peer
 import (
 	"os"
 	"log"
+	//"hash"
 	"io/ioutil"
+	"path/filepath"
 	"encoding/json"
 )
 
@@ -17,34 +19,70 @@ type Metadata struct {
 }
 
 
-func GenerateMetadata(filename string, metadata_path string) {
+func (cfg *PeerCfg) GenerateMetadata() {
 
 	// metadata for a particular file should inlude filename, file size, chunk size 
 
 	// build the metadata into a json object; write the object to the metadata file
 
+	dirPath := cfg.DirectoryPath
+	fileList := new([]string)
 
-	fileInfo, err := os.Stat(filename)
+	data := new([]Metadata)
+
+	err := filepath.Walk(dirPath, func(path string, info os.FileInfo, err error) error {
+		
+		if err != nil {
+			return err
+		}
+
+		if !info.IsDir() {
+			// add file to the list
+			*fileList = append(*fileList, path)
+		}
+		return nil
+	})
+
 
 	if err != nil {
-		log.Fatal(err)
+		log.Printf("Error obtaining list of files: %v", err)
 	}
 
+	
 
-	// Size of the file in bytes
-	fileSize := fileInfo.Size()
+	metadataPath := cfg.MetadataPath
+
+	for _, file := range *fileList {
+		fileInfo, err := os.Stat(file)
+
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		// Size of the file in bytes
+		fileSize := fileInfo.Size()
 
 
-	// build the struct
+		// build the struct
 
-	metadata := new(Metadata)
+		metadata := new(Metadata)
 
-	metadata.FileName  = filename
-	metadata.FileSize  = uint64(fileSize)
-	metadata.ChunkSize = CHUNK_SIZE
+		metadata.FileName  = file
+		metadata.FileSize  = uint64(fileSize)
+		metadata.ChunkSize = CHUNK_SIZE
+
+		*data = append(*data, *metadata)
+	}
+	
+
+	log.Printf("Here is the metadata list: %v", data)
 
 	
-	metadataFile, err := os.OpenFile(metadata_path, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644) // 0644 sets permissions (read/write for owner; read for everyone else)
+
+
+
+
+	metadataFile, err := os.OpenFile(metadataPath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644) // 0644 sets permissions (read/write for owner; read for everyone else)
 
 	if err != nil {
 		log.Println("Error opening metadata file: %v",err)
@@ -54,62 +92,100 @@ func GenerateMetadata(filename string, metadata_path string) {
 	defer metadataFile.Close()
 	
 
-	byteValue, err := ioutil.ReadFile(metadata_path)
-
-	if err != nil {
-		log.Println("Error reading metadata file: %v",  err)
-		return
-	}
-	
-
-
-	data := new([]Metadata)
-	err = json.Unmarshal(byteValue, &data)
-
-	if err != nil {
-
-		if err.Error() == "unexpected end of JSON input" {
-			// This means the file is empty so instead we will just write
-			// append to the data
-			*data = append(*data, *metadata)
-
-			// encode the list
-			encodedData, err := json.Marshal(data)
-
-			if err != nil {
-				log.Println("Error encoding updated metadata: %v", err)
-			}
-
-			// rewrite the data to the metadata json file
-			_, err = metadataFile.Write(encodedData)
-
-		} else {
-			log.Printf("Error decoding metadata file for %s: %v , error code: %v", filename, err, err.Error() )
-		}
-		return
-	}
-
-
-	// append to the data
-	*data = append(*data, *metadata)
-
 	// encode the list
 	encodedData, err := json.Marshal(data)
 
 	if err != nil {
-		log.Println("Error encoding updated metadata: %v", err)
+		log.Printf("Error encoding updated metadata: %v", err)
 	}
 
 	// rewrite the data to the metadata json file
 	_, err = metadataFile.Write(encodedData)
 
 	if err != nil {
-		log.Println("Error writing to metadata file: %v", err)
+		log.Printf("Error writing to metadata file: %v", err)
 	}
 
-	log.Printf("%s metadata successfully generated.")
+	log.Printf("Metadata successfully generated.")
+
+	
+	
+}
+
+
+
+
+func ExtractMetadata(metadataPath string) ([]Metadata, error) {
+
+	// extract the metadata from the json file into a Metadata array
+
+
+	// Metadata array
+	metadata := new([]Metadata)
+
+
+	// Open metadata file
+	metadataFile, err := os.OpenFile(metadataPath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644) // 0644 sets permissions (read/write for owner; read for everyone else)
+
+	if err != nil {
+		log.Printf("Error opening metadata file: %v",err)
+		return nil, err
+	}
+
+	defer metadataFile.Close()
+	
+	// read metadata file to bytes
+	byteValue, err := ioutil.ReadFile(metadataPath)
+
+	if err != nil {
+		log.Printf("Error reading metadata file: %v",  err)
+		return nil, err
+	}
+
+	// decode bytes to a struct
+	err = json.Unmarshal(byteValue, metadata)
+	
+	if err != nil {
+
+		if err.Error() == "unexpected end of JSON input" {
+			// This means the file is empty so instead we will just return empty array
+			return *metadata, nil
+
+		} else {
+			log.Printf("Error decoding metadata file: %v , error code: %v",  err, err.Error() )
+		}
+
+		return nil, err
+	}
+
+
+	return *metadata, nil
+
 
 }
+
+
+
+
+func (cfg *PeerCfg) GenerateDHT() {
+
+	/*
+	metadataPath := cfg.MetadataPath
+
+	// obtain array of metadata
+	metadata, err := ExtractMetadata(metadataPath)
+
+	if err != nil {
+		// handle error
+	}
+
+	// apply the hash function to each metadata in the array
+
+	// store it in the hash table
+
+	*/
+}
+
 
 
 
