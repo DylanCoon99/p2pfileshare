@@ -181,9 +181,11 @@ Implementation Notes
 			- Each peer in the result has a corresponding bitfield that represents chunk availability.
 		- Depending on availability, Peer 2 then requests chunks from relevant peers.
 		- Peer 2 receives all chunks and reassembles the file. 
-		- The file is then validated using a checksum. 
+		- The file is then validated using a checksum. (I don't understand where the checksum value is stored: Maybe metadata file)
 
 	- 2/22/2025: Metadata generation for files, write metadata to file, share will all peers
 		- Metadata: File name, file size, chunk size, chunk indices
 		- 
-	- 2/28/2025: Figure out Metadata and DHT sharing
+	- 2/28/2025: 
+
+	- **I don't think we need to share the DHT data: just share all of the metadata with other peers and build the DHT afterwards

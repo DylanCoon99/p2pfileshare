@@ -115,7 +115,7 @@ func (cfg *PeerCfg) GenerateMetadata() {
 
 
 
-func ExtractMetadata(metadataPath string) ([]Metadata, error) {
+func ExtractMetadata(metadataPath string) (*[]Metadata, error) {
 
 	// extract the metadata from the json file into a Metadata array
 
@@ -149,7 +149,7 @@ func ExtractMetadata(metadataPath string) ([]Metadata, error) {
 
 		if err.Error() == "unexpected end of JSON input" {
 			// This means the file is empty so instead we will just return empty array
-			return *metadata, nil
+			return metadata, nil
 
 		} else {
 			log.Printf("Error decoding metadata file: %v , error code: %v",  err, err.Error() )
@@ -159,7 +159,7 @@ func ExtractMetadata(metadataPath string) ([]Metadata, error) {
 	}
 
 
-	return *metadata, nil
+	return metadata, nil
 
 
 }

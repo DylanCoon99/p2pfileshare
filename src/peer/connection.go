@@ -9,6 +9,7 @@ import (
 	"time"
 	//"bytes"
 	//"bufio"
+	"encoding/json"
 )
 
 
@@ -26,40 +27,27 @@ func ParseRequest(buf []byte, conn net.Conn) *Request {
 	req := new(Request)
 	peer := new(Peer)
 
+	// decode the bytes into a req
+	err := json.Unmarshal(buf, req)
+
+
+	if err != nil {
+		log.Printf("Error parsing request: %v", err)
+		return nil
+	}
+
+
 	localAddr := conn.LocalAddr().(*net.TCPAddr)
 
 	peer.IP                = fmt.Sprintf("%s:%d", localAddr.IP.String(), localAddr.Port)
 	peer.Active            = true
 	peer.LastServerContact = time.Now()
 
-	req.Body = buf
 	req.Peer = peer
-	req.Conn = conn
-
-
-	//log.Printf("This is the buf binary: %b", buf)
-
-
-	switch str := string(buf); str {
-	case "CONNECT\n":
-		req.Type = CONNECT
-	case "METADATA_SHARE\n":
-		req.Type = METADATA_SHARE
-	case "DHT_INFO\n":
-		req.Type = DHT_INFO
-	case "FILE_CHUNK\n":
-		req.Type = FILE_CHUNK
-	case "PING\n":
-		req.Type = PING
-	case "DISCONNECT\n":
-		req.Type = DISCONNECT
-	default:
-		// bad request
-		log.Printf("This is a bad request dummy: %s", str)
-	}
 
 
 	return req
+
 }
 
 
@@ -73,8 +61,6 @@ func (peer Peer) HandleRequest(req *Request) {
 		peer.Connect(req)
 	case METADATA_SHARE:
 		peer.MetadataShare(req)
-	case DHT_INFO:
-		peer.DHTInfo(req)
 	case FILE_CHUNK:
 		peer.FileChunk(req)
 	case PING:

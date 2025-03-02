@@ -2,6 +2,7 @@ package peer
 
 import (
 	//"io"
+	//"os"
 	"net"
 	"log"
 	"fmt"
@@ -33,7 +34,6 @@ type RequestType int
 const (
 	CONNECT RequestType = iota
 	METADATA_SHARE
-	DHT_INFO
 	FILE_CHUNK
 	PING
 	DISCONNECT
@@ -66,6 +66,7 @@ func InitPeer() {
 	dir_path := "/mnt/c/Users/Dylan/My Documents/self_learning/p2p/src/cmd/peer/dir/"
 
 
+
 	peerCfg := PeerCfg {
 		MetadataPath: metadata_path,
 		DirectoryPath: dir_path,
@@ -89,10 +90,10 @@ func InitPeer() {
 	// Send metadata to all active peers
 
 
-	// Update DHT
+	// Construct all metadata from other peers
 
 
-	// Send DHT to all active peers
+	// Generate DHT
 
 
 	// Listen for incoming peer requests
@@ -189,40 +190,49 @@ func GetPeers(conn net.Conn) (*[]Peer, error) {
 
 
 
-func SendMetadata(conn net.Conn) (error) {
+func (cfg *PeerCfg) SendMetadata(conn net.Conn) (error) {
 
 	// this function will send metadata to another peer
+	metadataPath := cfg.MetadataPath
+	metadataList := new([]Metadata)
 
+	// build the request
+	req := new(Request)
+
+	var reqType RequestType
+	reqType = 1
+
+	req.Type = reqType
+	req.Peer = nil
+	req.Conn = conn
 
 	// read metadata from the metadata.json
+	metadataList, err := ExtractMetadata(metadataPath)
 
+	if err != nil {
+		log.Printf("Failed to extract metadata: %v", err)
+	}
 
-	// encode the metadata to bytes
+	byteValue, err := json.Marshal(metadataList)
 
+	if err != nil {
+		log.Printf("Failed to encode metadata list: %v", err)
+	}
 
-	// send data over the conn
+	req.Body = byteValue
 
+	encodedReq, err := json.Marshal(req)
 
-	return nil
-}
+	if err != nil {
+		log.Printf("Failed to share metadata request: %v", err)
+	}
 
-
-func SendDHT(conn net.Conn) (error) {
-
-	// this function will send DHT data to another peer
-
-
-	// capture DHT in a variable
-
-
-	// encode the DHT to bytes
-
-
-	// send data over the conn
-
+	conn.Write(encodedReq)
 
 	return nil
 }
+
+
 
 
 func Ping(conn net.Conn) {
