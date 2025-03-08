@@ -50,8 +50,6 @@ func (cfg *PeerCfg) GenerateMetadata() {
 
 	
 
-	metadataPath := cfg.MetadataPath
-
 	for _, file := range *fileList {
 		fileInfo, err := os.Stat(file)
 
@@ -72,31 +70,44 @@ func (cfg *PeerCfg) GenerateMetadata() {
 		metadata.ChunkSize = CHUNK_SIZE
 
 		*data = append(*data, *metadata)
+
+		cfg.Metadata.Add(metadata)  // add metadata to the metadata set
 	}
 	
 
 	log.Printf("Here is the metadata list: %v", data)
 
+
+
+	err = cfg.WriteMetadata(*data) // write metadata to the file
+
+	if err != nil {
+		log.Printf("Error writing to metadata file: %v", err)
+	}
 	
+}
 
 
 
+func (cfg *PeerCfg) WriteMetadata(metadataList []Metadata) error {
 
-	metadataFile, err := os.OpenFile(metadataPath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644) // 0644 sets permissions (read/write for owner; read for everyone else)
+
+	metadataFile, err := os.OpenFile(cfg.MetadataPath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644) // 0644 sets permissions (read/write for owner; read for everyone else)
 
 	if err != nil {
 		log.Println("Error opening metadata file: %v",err)
-		return
+		return err
 	}
 
 	defer metadataFile.Close()
 	
 
 	// encode the list
-	encodedData, err := json.Marshal(data)
+	encodedData, err := json.Marshal(metadataList)
 
 	if err != nil {
 		log.Printf("Error encoding updated metadata: %v", err)
+		return err
 	}
 
 	// rewrite the data to the metadata json file
@@ -104,14 +115,13 @@ func (cfg *PeerCfg) GenerateMetadata() {
 
 	if err != nil {
 		log.Printf("Error writing to metadata file: %v", err)
+		return err
 	}
 
 	log.Printf("Metadata successfully generated.")
+	return nil
 
-	
-	
 }
-
 
 
 
@@ -166,19 +176,38 @@ func ExtractMetadata(metadataPath string) (*[]Metadata, error) {
 
 
 
-func (cfg *PeerCfg) ConstructMetadata(addMetadata []Metadata) {
+func (cfg *PeerCfg) ConstructMetadata(addMetadata []Metadata) error {
 
 
-	// Reads from the metadata file for this peer and then merges the new metadata
+	metadataList, err := ExtractMetadata(cfg.MetadataPath)
 
-	// iterate over new metadata
+	if err != nil {
+		log.Printf("Error extracting metadata: %v", err)
+		return err
+	}
 
-	// check if each file exists in the current metadata
 
-	// if present --> skip; else --> add to metadata, also add to metadata set
+	for _, metadata := range addMetadata {
+		// for each element in addMetadata, check if it exists in metadataList
+		if cfg.Metadata.Exists(metadata.FileName) {
+			// metadata already in list; do not add
+		} else {
+			cfg.Metadata.Add(&metadata)
+			*metadataList = append(*metadataList, metadata)
+		}
+	}
 
-	// overwrite metadata file with new metadata list
 
+	// Write metadata list to the metadata file
+
+	err = cfg.WriteMetadata(*metadataList)
+
+	if err != nil {
+		log.Printf("Error writing metadata: %v", err)
+		return err
+	}
+
+	return nil
 
 }
 
@@ -221,8 +250,8 @@ func CreateMetadataSet() *MetadataSet {
 
 
 
-func (m *MetadataSet) Add(item Metadata) {
-	m.metadata[item.FileName] = item
+func (m *MetadataSet) Add(item *Metadata) {
+	m.metadata[item.FileName] = *item
 }
 
 
