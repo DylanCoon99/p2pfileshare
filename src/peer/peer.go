@@ -50,9 +50,16 @@ type Request struct {
 }
 
 
+
+type MetadataSet struct {
+	metadata map[string]Metadata
+}
+
+
 type PeerCfg struct {
 	MetadataPath string
 	DirectoryPath string
+	Metadata *MetadataSet
 	// DHT map
 
 }
@@ -66,10 +73,13 @@ func InitPeer() {
 	dir_path := "/mnt/c/Users/Dylan/My Documents/self_learning/p2p/src/cmd/peer/dir/"
 
 
+	metadataSet := CreateMetadataSet()
+
 
 	peerCfg := PeerCfg {
 		MetadataPath: metadata_path,
 		DirectoryPath: dir_path,
+		Metadata: metadataSet,
 		// add DHT here later
 	}
 

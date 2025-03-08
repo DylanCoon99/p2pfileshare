@@ -166,6 +166,23 @@ func ExtractMetadata(metadataPath string) (*[]Metadata, error) {
 
 
 
+func (cfg *PeerCfg) ConstructMetadata(addMetadata []Metadata) {
+
+
+	// Reads from the metadata file for this peer and then merges the new metadata
+
+	// iterate over new metadata
+
+	// check if each file exists in the current metadata
+
+	// if present --> skip; else --> add to metadata, also add to metadata set
+
+	// overwrite metadata file with new metadata list
+
+
+}
+
+
 
 func (cfg *PeerCfg) GenerateDHT() {
 
@@ -192,3 +209,28 @@ func (cfg *PeerCfg) GenerateDHT() {
 func (peer *Peer) Chunk(filename string) {
 	// takes a filename as input and modifies the DHT for this peer
 }
+
+
+
+
+func CreateMetadataSet() *MetadataSet {
+
+	return &MetadataSet{metadata: make(map[string]Metadata)}
+
+}
+
+
+
+func (m *MetadataSet) Add(item Metadata) {
+	m.metadata[item.FileName] = item
+}
+
+
+
+func (m *MetadataSet) Exists(filename string) bool {
+
+	_, ok := m.metadata[filename]
+
+	return ok
+}
+
