@@ -75,7 +75,7 @@ func (cfg *PeerCfg) GenerateMetadata() {
 	}
 	
 
-	log.Printf("Here is the metadata list: %v", data)
+	//log.Printf("Here is the metadata list: %v", data)
 
 
 

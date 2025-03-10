@@ -52,24 +52,24 @@ func ParseRequest(buf []byte, conn net.Conn) *Request {
 
 
 
-func (peer Peer) HandleRequest(req *Request) {
+func (cfg *PeerCfg) HandleRequest(req *Request) {
 	// takes a request as input and fulfills that request
 
 
 	switch t := req.Type; t {
 	case CONNECT:
-		peer.Connect(req)
+		cfg.Connect(req)
 	case METADATA_SHARE:
-		peer.MetadataShare(req)
+		cfg.MetadataShare(req)
 	case FILE_CHUNK:
-		peer.FileChunk(req)
+		cfg.FileChunk(req)
 	case PING:
-		peer.Ping(req)
+		cfg.Ping(req)
 	case DISCONNECT:
-		peer.Disconnect(req)
+		cfg.Disconnect(req)
 	default:
 		// bad request; return 400
-		peer.BadRequest(req)
+		cfg.BadRequest(req)
 	}
 
 
@@ -79,7 +79,7 @@ func (peer Peer) HandleRequest(req *Request) {
 
 // here is the functionality for the peer handling connections
 
-func (peer Peer) HandleConnection(conn net.Conn) {
+func (cfg *PeerCfg) HandleConnection(conn net.Conn) {
 	defer conn.Close()
 
 	// To be implemented

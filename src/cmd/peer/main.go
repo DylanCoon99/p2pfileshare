@@ -4,8 +4,8 @@ package main
 
 import (
 	//"time"
-	//"log"
-	//"net"
+	"log"
+	"net"
 	"github.com/DylanCoon99/p2pfileshare/src/peer"
 )
 
@@ -22,12 +22,10 @@ Notes:
 
 func main() {
 
-	//const port = "8080"
-	//var conn net.Conn
+	const port = "8080"
+	var conn net.Conn
 
-	//conn = peer.ConnectToServer(port)
-
-	/*
+	conn = peer.ConnectToServer(port)
 
 	if conn == nil {
 		log.Fatal("I Failed to connect to the server")
@@ -40,26 +38,7 @@ func main() {
 
 	conn.Close()
 
-	
-	conn = peer.ConnectToServer(port)
-
-	if conn == nil {
-		log.Fatal("I Failed to connect to the server")
-	}
-
-	
-	// Get all peers from the server
-	peers,err := peer.GetPeers(conn)
-
-	if err != nil {
-		log.Println("Error getting peers:", err)
-	}
-	log.Printf("I am a peer and I received: %v\n", peers)
-	
-	*/
-
 	peer.InitPeer()
 
-	//conn.Close()
 	
 }

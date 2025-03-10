@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"time"
 	//"bytes"
+	"sync"
 	"encoding/json"
 	"bufio"
 	"strings"
@@ -68,6 +69,8 @@ type PeerCfg struct {
 
 func InitPeer() {
 
+	var wg sync.WaitGroup
+
 	//peer cfg
 	metadata_path := "/mnt/c/Users/Dylan/My Documents/self_learning/p2p/src/peer/metadata/metadata.json"
 	dir_path := "/mnt/c/Users/Dylan/My Documents/self_learning/p2p/src/cmd/peer/dir/"
@@ -91,10 +94,23 @@ func InitPeer() {
 
 	peerCfg.GenerateMetadata()
 
+
+	// Listen for incoming peer requests
+
+
+	// Listen for incoming peer requests
+	wg.Add(1)
+
+	go func() {
+		defer wg.Done()
+		peerCfg.Listen("8000")
+	}()
+
+	//time.Sleep(5 * time.Second)
+
+	
+
 	// Chunk each file, store file chunks indices in the index folder
-
-
-	// Get list of active peers
 
 
 	// Send metadata to all active peers
@@ -106,8 +122,7 @@ func InitPeer() {
 	// Generate DHT
 
 
-	// Listen for incoming peer requests
-
+	wg.Wait()
 
 }
 
@@ -276,12 +291,13 @@ func ConnectToPeer(peer *Peer) (net.Conn, error) {
 
 
 
-func (peer Peer) Listen(port string) {
+func (cfg *PeerCfg) Listen(port string) {
 	// This is where this peer will listen for other peers attempting to connect
 
 
 	ln, err := net.Listen("tcp", ":" + port)  // returns (Listener, error)
 
+	defer ln.Close()
 
 	if err != nil {
 		log.Fatal(err) // prints the error and exits the program
@@ -292,9 +308,10 @@ func (peer Peer) Listen(port string) {
 		conn, err := ln.Accept()
 		if err != nil {
 			log.Println(err) // prints the error to standard error
+			continue
 		}
 		// handle the connnection
-		go peer.HandleConnection(conn)
+		go cfg.HandleConnection(conn)
 	}
 
 }
