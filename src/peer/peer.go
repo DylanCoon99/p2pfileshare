@@ -67,7 +67,7 @@ type PeerCfg struct {
 
 
 
-func InitPeer() {
+func InitPeer(serverConn net.Conn) {
 
 	var wg sync.WaitGroup
 
@@ -107,16 +107,42 @@ func InitPeer() {
 	}()
 
 	//time.Sleep(5 * time.Second)
-
 	
 
 	// Chunk each file, store file chunks indices in the index folder
 
 
+	// Get array of active peers
+	peers := new([]Peer)
+	peers, err := GetPeers(serverConn)
+
+	if err != nil {
+		log.Fatal("Failed to get peers")
+	}
+
+
 	// Send metadata to all active peers
+	for _, peer := range *peers {
+		go func() {
+			// form a connection with each peer
+			// send the metadata to each peer
+			conn, err := ConnectToPeer(&peer)
+
+			if err != nil {
+				log.Printf("Failed to connect to peer %v: %v", peer, err)
+			}
+
+			err = peerCfg.SendMetadata(conn)
+
+			if err != nil {
+				log.Printf("Failed to send metadata to peer %v: %v", peer, err)
+			}
+		} ()
+	}
 
 
 	// Construct all metadata from other peers
+	
 
 
 	// Generate DHT
@@ -125,7 +151,6 @@ func InitPeer() {
 	wg.Wait()
 
 }
-
 
 
 
@@ -215,7 +240,7 @@ func GetPeers(conn net.Conn) (*[]Peer, error) {
 
 
 
-func (cfg *PeerCfg) SendMetadata(conn net.Conn) (error) {
+func (cfg *PeerCfg) SendMetadata(conn net.Conn) error {
 
 	// this function will send metadata to another peer
 	metadataPath := cfg.MetadataPath
