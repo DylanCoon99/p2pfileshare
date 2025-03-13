@@ -82,8 +82,23 @@ func (cfg *PeerCfg) HandleRequest(req *Request) {
 func (cfg *PeerCfg) HandleConnection(conn net.Conn) {
 	defer conn.Close()
 
-	// To be implemented
+	log.Println("Peer: Handling the connection now!")
+	// Read data from the connection
+	// Determine the type of request
+	req := new(Request)
+	buf := new([]byte) // this returns actual buf not ptr
 
+	_, err := conn.Read(*buf)
+
+	if err != nil {
+		log.Printf("Failed to read request from connection: %v", err)
+	}
+
+
+
+	req = ParseRequest(*buf, conn)
+
+	cfg.HandleRequest(req)
 
 	return
 }
