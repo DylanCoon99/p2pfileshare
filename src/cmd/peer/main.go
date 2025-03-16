@@ -33,20 +33,6 @@ func main() {
 
 
 	// Register the peer with the server
-	peer.Register(conn)
-
-
-	conn.Close()
-
-	conn = peer.ConnectToServer(port)
-
-	if conn == nil {
-		log.Fatal("I Failed to connect to the server")
-	}
-
-
-	// Register the peer with the server
-	peer.Register(conn)
 
 	peer.InitPeer(conn)
 

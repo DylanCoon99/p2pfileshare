@@ -11,7 +11,7 @@ import (
 	"sync"
 	"encoding/json"
 	"bufio"
-	"strings"
+	//"strings"
 )
 
 
@@ -35,6 +35,7 @@ type RequestType int
 const (
 	CONNECT RequestType = iota
 	METADATA_SHARE
+	PEER_LIST
 	FILE_CHUNK
 	PING
 	DISCONNECT
@@ -61,6 +62,7 @@ type PeerCfg struct {
 	MetadataPath string
 	DirectoryPath string
 	Metadata *MetadataSet
+	Peers *[]Peer
 	// DHT map
 
 }
@@ -83,12 +85,13 @@ func InitPeer(serverConn net.Conn) {
 		MetadataPath: metadata_path,
 		DirectoryPath: dir_path,
 		Metadata: metadataSet,
+		Peers: nil,
 		// add DHT here later
 	}
 
 
 	// register with the server
-
+	Register(serverConn)
 
 	// Generate Metadata
 
@@ -106,20 +109,21 @@ func InitPeer(serverConn net.Conn) {
 		peerCfg.Listen("8000")
 	}()
 
-	//time.Sleep(5 * time.Second)
+	time.Sleep(5 * time.Second)
 	
+	log.Printf("List of active peers: %v", peerCfg.Peers)
 
 	// Chunk each file, store file chunks indices in the index folder
 
 
 	// Get array of active peers
-	peers := new([]Peer)
-	peers, err := GetPeers(serverConn)
+	//peers := new([]Peer)
+	//peers, err := GetPeers(serverConn)
 
-	if err != nil {
-		log.Fatal("Failed to get peers")
-	}
 
+	// log.Printf("Active Peers:%v ", peers)
+
+	/*
 
 	// Send metadata to all active peers
 	for _, peer := range *peers {
@@ -137,9 +141,12 @@ func InitPeer(serverConn net.Conn) {
 			if err != nil {
 				log.Printf("Failed to send metadata to peer %v: %v", peer, err)
 			}
+
+			Disconnect(conn)
+
 		} ()
 	}
-
+	*/
 
 	// Construct all metadata from other peers
 	
@@ -195,46 +202,6 @@ func Register(conn net.Conn) error {
 	fmt.Printf("Received %s\n", response)
 
 	return nil
-
-}
-
-
-
-func GetPeers(conn net.Conn) (*[]Peer, error) {
-	// Write Get Peers to the connection
-
-
-	// Write GET_PEERS to the connection
-	req := []byte("GET_PEERS\n")
-	_, err := conn.Write(req)
-	if err != nil {
-		log.Println("Error: ", err)
-		return nil, err
-	}
-
-
-	// Read the response from the server
-	reader := bufio.NewReader(conn)
-	response, err := reader.ReadString('\n')
-	response = strings.TrimSpace(response)
-	if err != nil {
-		log.Println("Error reading response: ", err)
-		return nil, err
-	}
-
-	//log.Printf("Here is the list of peers: %v", response)
-
-    var peers []Peer
-
-    err = json.Unmarshal([]byte(response), &peers)
-
-
-    if err != nil {
-    	log.Printf("Error decoding peers: %v", err)
-    }
-
-	return &peers, nil
-
 
 }
 

@@ -37,12 +37,6 @@ func ParseRequest(buf []byte, conn net.Conn) *Request {
 	switch str := string(buf); str {
 	case "REGISTER\n":
 		req.Type = REGISTER
-	case "UNREGISTER\n":
-		req.Type = UNREGISTER
-	case "GET_PEERS\n":
-		req.Type = GET_PEERS
-	case "DISCONNECT\n":
-		req.Type = DISCONNECT
 	default:
 		// bad request
 		log.Printf("This is a bad request dummy: %s", str)
@@ -62,12 +56,6 @@ func (serverCfg ServerState) HandleRequest(req *Request) {
 	switch t := req.Type; t {
 	case REGISTER:
 		serverCfg.Register(req)
-	case UNREGISTER:
-		serverCfg.Unregister(req)
-	case GET_PEERS:
-		serverCfg.GetPeers(req)
-	case DISCONNECT:
-		serverCfg.Disconnect(req)
 	default:
 		// bad request; return 400
 		serverCfg.BadRequest(req)
@@ -101,4 +89,22 @@ func (serverCfg ServerState) HandleConnection(conn net.Conn) {
 	
 
 	return
+}
+
+
+
+func ConnectToPeer(peer *Peer) (net.Conn, error) {
+
+	// attempt to connect to the server via tcp
+
+	conn, err := net.Dial("tcp", peer.IP)
+	if err != nil {
+		log.Println(err)
+		return nil, err
+	}
+	log.Println("Server: Successfully connected to peer!")
+
+
+	return conn, nil
+
 }

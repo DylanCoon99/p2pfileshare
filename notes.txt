@@ -189,3 +189,9 @@ Implementation Notes
 	- 2/28/2025: 
 
 	- **I don't think we need to share the DHT data: just share all of the metadata with other peers and build the DHT afterwards
+
+	- 3/15/2025: objective --> determine if peer sharing works
+		- test share metadata
+		- need to make a correction --> server sends new list of peers to all peers every time a peer registers.
+	- 3/16/2025: objective --> Figure out why peer can't handle connections
+		- complete share metadata

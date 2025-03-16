@@ -21,10 +21,7 @@ type RequestType int
 
 const (
 	REGISTER RequestType = iota
-	UNREGISTER
-	GET_PEERS
 	PING
-	DISCONNECT
 )
 
 

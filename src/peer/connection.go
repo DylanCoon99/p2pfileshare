@@ -61,6 +61,9 @@ func (cfg *PeerCfg) HandleRequest(req *Request) {
 		cfg.Connect(req)
 	case METADATA_SHARE:
 		cfg.MetadataShare(req)
+	case PEER_LIST:
+		log.Println("CONFIRMING THIS LINE IS WORKING")
+		cfg.PeerList(req)
 	case FILE_CHUNK:
 		cfg.FileChunk(req)
 	case PING:
@@ -97,6 +100,8 @@ func (cfg *PeerCfg) HandleConnection(conn net.Conn) {
 
 
 	req = ParseRequest(*buf, conn)
+
+	log.Println("HERE IS A REQUEST: %v", req)
 
 	cfg.HandleRequest(req)
 

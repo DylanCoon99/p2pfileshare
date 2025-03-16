@@ -41,6 +41,26 @@ func (cfg *PeerCfg) MetadataShare(req *Request) {
 }
 
 
+func (cfg *PeerCfg) PeerList(req *Request) {
+
+	// handle function for receiving peer list
+
+	// updates list of known peers for this peer
+	peers := new([]Peer)
+	buf := req.Body
+
+	// decode the buffer
+	err := json.Unmarshal(buf, peers)
+
+	if err != nil {
+		log.Printf("Error decoding peer list: %v", err)
+	}
+
+	cfg.Peers = peers
+}
+
+
+
 func (cfg *PeerCfg) FileChunk(req *Request) {
 
 

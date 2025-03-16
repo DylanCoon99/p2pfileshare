@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	//"bytes"
 	"log"
+	"time"
 )
 
 func (serverCfg ServerState) Register(req *Request) {
@@ -23,10 +24,17 @@ func (serverCfg ServerState) Register(req *Request) {
 	*serverCfg.Peers = append(*serverCfg.Peers, *req.Peer)
 	serverCfg.CurNumPeers += 1
 
-	//log.Printf("Here is the updated list of peers: %v", serverCfg.Peers)
+	log.Printf("Here is the updated list of peers: %v", serverCfg.Peers)
 
+	err := serverCfg.ShareAllPeers()
+
+	if err != nil {
+		log.Printf("Error sharing updated peer list: %v", err)
+	}
 
 	conn.Write([]byte("You are successfully registered.\n"))
+
+	time.Sleep(5 * time.Second)
 
 }
 
@@ -56,20 +64,6 @@ func (serverCfg ServerState) GetPeers(req *Request) {
 
 }
 
-
-func (serverCfg ServerState) Unregister(req *Request) {
-	// Set this peers status to unactive if the node is present in the peer list
-
-
-
-}
-
-
-func (serverCfg ServerState) Disconnect(req *Request) {
-	// End this connection with the peer
-
-
-}
 
 
 func (serverCfg ServerState) BadRequest(req *Request) {
