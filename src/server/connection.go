@@ -2,44 +2,30 @@ package server
 
 import (
 	//"io"
-	"fmt"
+	//"fmt"
 	"net"
 	"log"
-	"time"
+	//"time"
 	//"bytes"
 	"bufio"
+	"encoding/json"
 )
 
 
 
 
-func ParseRequest(buf []byte, conn net.Conn) *Request {
+func ParseRequest(buf []byte) *Request {
 	// return a Request struct containing info in the request
 
 
 	req := new(Request)
-	peer := new(Peer)
 
-	localAddr := conn.LocalAddr().(*net.TCPAddr)
+	err := json.Unmarshal(buf, req)
 
-	peer.IP                = fmt.Sprintf("%s:%d", localAddr.IP.String(), localAddr.Port)
-	peer.Active            = true
-	peer.LastServerContact = time.Now()
+	log.Printf("HERE IS THE REQUEST: %v", req)
 
-	req.Body = buf
-	req.Peer = peer
-	req.Conn = conn
-
-
-	//log.Printf("This is the buf binary: %b", buf)
-
-
-	switch str := string(buf); str {
-	case "REGISTER\n":
-		req.Type = REGISTER
-	default:
-		// bad request
-		log.Printf("This is a bad request dummy: %s", str)
+	if err != nil {
+		log.Printf("Error decoding request: %v", err)
 	}
 
 
@@ -48,17 +34,15 @@ func ParseRequest(buf []byte, conn net.Conn) *Request {
 
 
 
-func (serverCfg ServerState) HandleRequest(req *Request) {
+func (serverCfg ServerState) HandleRequest(req *Request, conn net.Conn) {
 	// takes a request as input and fulfills that request
-
-	//log.Println(serverCfg.Peers)
 
 	switch t := req.Type; t {
 	case REGISTER:
-		serverCfg.Register(req)
+		serverCfg.Register(req, conn)
 	default:
 		// bad request; return 400
-		serverCfg.BadRequest(req)
+		serverCfg.BadRequest(req, conn)
 	}
 
 
@@ -69,7 +53,7 @@ func (serverCfg ServerState) HandleRequest(req *Request) {
 
 // here is the functionality for the server handling connections
 
-func (serverCfg ServerState) HandleConnection(conn net.Conn) {
+func (serverCfg *ServerState) HandleConnection(conn net.Conn) {
 	defer conn.Close()
 
 	log.Println("Server: Handling the connection now!")
@@ -78,14 +62,17 @@ func (serverCfg ServerState) HandleConnection(conn net.Conn) {
 	reader := bufio.NewReader(conn)
 	
 	requestLine, err := reader.ReadString('\n')
+
+	log.Println(requestLine)
+
 	if err != nil {
 		log.Println("Error reading request:", err)
 		return
 	}
 
-	req := ParseRequest([]byte(requestLine), conn)
+	req := ParseRequest([]byte(requestLine))
 
-	serverCfg.HandleRequest(req)
+	serverCfg.HandleRequest(req, conn)
 	
 
 	return

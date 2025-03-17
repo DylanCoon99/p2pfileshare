@@ -31,7 +31,6 @@ type Request struct {
 	Type RequestType
 	Body []byte
 	Peer *Peer
-	Conn net.Conn
 }
 
 

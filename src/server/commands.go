@@ -5,20 +5,19 @@ import (
 	//"bytes"
 	"log"
 	"time"
+	"net"
 )
 
-func (serverCfg ServerState) Register(req *Request) {
+func (serverCfg ServerState) Register(req *Request, conn net.Conn) {
 	
 	// CORRECT THIS TO NOT ADD A PEER TWICE
-
 
 	// add this peer to the peer list and set it's status to active
 
 	// write a response to the connection
 
-	conn := req.Conn
 	//peers := serverCfg.Peers
-
+	defer conn.Close()
 
 	//*peers = append(*peers, *req.Peer)
 	*serverCfg.Peers = append(*serverCfg.Peers, *req.Peer)
@@ -26,15 +25,17 @@ func (serverCfg ServerState) Register(req *Request) {
 
 	log.Printf("Here is the updated list of peers: %v", serverCfg.Peers)
 
+
+	conn.Write([]byte("You are successfully registered.\n"))
+
+
+	time.Sleep(5 * time.Second)
+
 	err := serverCfg.ShareAllPeers()
 
 	if err != nil {
 		log.Printf("Error sharing updated peer list: %v", err)
 	}
-
-	conn.Write([]byte("You are successfully registered.\n"))
-
-	time.Sleep(5 * time.Second)
 
 }
 
@@ -45,7 +46,7 @@ func (serverCfg ServerState) GetPeers(req *Request) {
 	//log.Println(serverCfg.Peers)
 
 
-	conn := req.Conn
+	//conn := req.Conn
 
 	peers := serverCfg.Peers
 
@@ -59,14 +60,14 @@ func (serverCfg ServerState) GetPeers(req *Request) {
 	}
 
 
-	conn.Write([]byte(string(jsonPeers) + "\n"))
+	//conn.Write([]byte(string(jsonPeers) + "\n"))
 
-
+	log.Println(jsonPeers)
 }
 
 
 
-func (serverCfg ServerState) BadRequest(req *Request) {
+func (serverCfg ServerState) BadRequest(req *Request, conn net.Conn) {
 
 }
 

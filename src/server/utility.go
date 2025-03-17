@@ -4,11 +4,12 @@ package server
 
 import (
 	"log"
+	"time"
 	"encoding/json"
 )
 
 
-func (serverCfg ServerState) ShareAllPeers() error {
+func (serverCfg *ServerState) ShareAllPeers() error {
 
 	// iterates over all peers and sends all active peers to each peer
 
@@ -32,12 +33,18 @@ func (serverCfg ServerState) ShareAllPeers() error {
 
 		conn, err := ConnectToPeer(&peer)
 
+		if err != nil {
+			log.Printf("Error connecting to peer %v: %v", peer, err)
+			return err
+		}
+
+		log.Printf("Connected to peer: %v\n", peer)
+
 		// build a req
 		req := new(Request)
 		req.Type = reqType
 		req.Body = buf
 		req.Peer = nil
-		req.Conn = conn
 
 		encodedReq, err := json.Marshal(req)
 
@@ -47,6 +54,8 @@ func (serverCfg ServerState) ShareAllPeers() error {
 		}
 
 		conn.Write(encodedReq)
+		time.Sleep(5 * time.Second)
+
 
 		conn.Close()
 

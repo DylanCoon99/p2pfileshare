@@ -39,16 +39,17 @@ const (
 	FILE_CHUNK
 	PING
 	DISCONNECT
+	REGISTER
 )
 
 
 
 type Request struct {
 	// type of request sent to the server
-	Type RequestType
-	Body []byte
-	Peer *Peer
-	Conn net.Conn
+	Type RequestType `json:"type"`
+	Body []byte      `json:"body"`
+	Peer *Peer       `json:"peer"`
+	//Conn net.Conn    `json:"conn"`
 }
 
 
@@ -62,6 +63,7 @@ type PeerCfg struct {
 	MetadataPath string
 	DirectoryPath string
 	Metadata *MetadataSet
+	IP string
 	Peers *[]Peer
 	// DHT map
 
@@ -85,13 +87,14 @@ func InitPeer(serverConn net.Conn) {
 		MetadataPath: metadata_path,
 		DirectoryPath: dir_path,
 		Metadata: metadataSet,
+		IP: "",
 		Peers: nil,
 		// add DHT here later
 	}
 
 
 	// register with the server
-	Register(serverConn)
+	peerCfg.Register(serverConn)
 
 	// Generate Metadata
 
@@ -106,12 +109,12 @@ func InitPeer(serverConn net.Conn) {
 
 	go func() {
 		defer wg.Done()
-		peerCfg.Listen("8000")
+		peerCfg.Listen("8000")  // Change this to reflect
 	}()
 
 	time.Sleep(5 * time.Second)
-	
-	log.Printf("List of active peers: %v", peerCfg.Peers)
+
+	//log.Printf("List of active peers: %v", peerCfg.Peers)
 
 	// Chunk each file, store file chunks indices in the index folder
 
@@ -181,15 +184,56 @@ func ConnectToServer(port string) net.Conn {
 
 
 
-func Register(conn net.Conn) error {
+func (cfg *PeerCfg) Register(conn net.Conn) error {
 
-	// Write register to the connection
-	data := []byte("REGISTER\n")
-	_, err := conn.Write(data)
+	log.Println("WE ARE IN THE PEER's REGISTER FUNCTION")
+
+
+	var reqType RequestType
+	reqType = 0 // register req on the server
+
+	req := new(Request)
+	peer := new(Peer)
+
+	LocalAddr := conn.LocalAddr().(*net.TCPAddr)
+
+	peerIP := fmt.Sprintf("%s:%d", LocalAddr.IP.String(), LocalAddr.Port)
+
+
+	peer.IP                = peerIP
+	peer.Active            = true
+	peer.LastServerContact = time.Now()
+
+	// update peerCfg IP
+	cfg.IP = peerIP
+
+
+	log.Printf("HERE IS THE PEER IP: %v", peerIP)
+
+
+
+	// build a request
+	req.Type = reqType
+	req.Body = nil
+	req.Peer = peer
+
+	//log.Printf("HERE IS THE CONN: %v", conn)
+
+	// encode the request to bytes
+	encodedReq, err := json.Marshal(req)
+	encodedReq = append(encodedReq, '\n')
+
 	if err != nil {
-		log.Println("Error: ", err)
+		log.Println("Error encoding request to bytes: ", err)
 		return err
 	}
+
+	_, err = conn.Write(encodedReq)
+	if err != nil {
+		log.Println("Error writing register request to connection: ", err)
+		return err
+	}
+
 	// Read the response from the server
 
 	reader := bufio.NewReader(conn)
@@ -221,7 +265,6 @@ func (cfg *PeerCfg) SendMetadata(conn net.Conn) error {
 
 	req.Type = reqType
 	req.Peer = nil
-	req.Conn = conn
 
 	// read metadata from the metadata.json
 	metadataList, err := ExtractMetadata(metadataPath)
@@ -292,6 +335,7 @@ func (cfg *PeerCfg) Listen(port string) {
 	defer ln.Close()
 
 	if err != nil {
+		log.Println(err)
 		log.Fatal(err) // prints the error and exits the program
 	}
 	log.Println("Peer: I am listening for other peers.")

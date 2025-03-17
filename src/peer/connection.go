@@ -37,9 +37,9 @@ func ParseRequest(buf []byte, conn net.Conn) *Request {
 	}
 
 
-	localAddr := conn.LocalAddr().(*net.TCPAddr)
+	RemoteAddr := conn.RemoteAddr().(*net.TCPAddr)
 
-	peer.IP                = fmt.Sprintf("%s:%d", localAddr.IP.String(), localAddr.Port)
+	peer.IP                = fmt.Sprintf("%s:%d", RemoteAddr.IP.String(), RemoteAddr.Port)
 	peer.Active            = true
 	peer.LastServerContact = time.Now()
 
@@ -62,7 +62,7 @@ func (cfg *PeerCfg) HandleRequest(req *Request) {
 	case METADATA_SHARE:
 		cfg.MetadataShare(req)
 	case PEER_LIST:
-		log.Println("CONFIRMING THIS LINE IS WORKING")
+		log.Println("CONFIRMING HANDLE REQUES IS WORKING")
 		cfg.PeerList(req)
 	case FILE_CHUNK:
 		cfg.FileChunk(req)
